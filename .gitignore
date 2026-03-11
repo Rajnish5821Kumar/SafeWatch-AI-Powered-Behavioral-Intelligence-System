@@ -1,0 +1,63 @@
+# ── Virtual Environment ───────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# ── Trained Models (large binary files) ──────────────────────────────────────
+models/*.h5
+models/*.pkl
+models/*.pt
+models/*.pth
+# Keep the models/ folder itself
+!models/.gitkeep
+
+# ── Data / Logs / Alerts ──────────────────────────────────────────────────────
+data/logs/
+data/alerts/
+data/samples/
+# Keep folder structure
+!data/logs/.gitkeep
+!data/alerts/.gitkeep
+!data/samples/.gitkeep
+
+# ── YOLOv8 auto-downloaded weights ───────────────────────────────────────────
+*.pt
+runs/
+
+# ── Uploads / Temp videos ─────────────────────────────────────────────────────
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+tmp/
+
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.suo
+*.user
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# ── Environment variables ─────────────────────────────────────────────────────
+.env
+.env.local
+
+# ── pytest / coverage ─────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/

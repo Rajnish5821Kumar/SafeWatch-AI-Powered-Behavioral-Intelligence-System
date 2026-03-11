@@ -1,0 +1,3 @@
+"""
+SafeWatch — Package init
+"""

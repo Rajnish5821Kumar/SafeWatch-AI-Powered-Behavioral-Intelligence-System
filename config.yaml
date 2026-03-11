@@ -1,0 +1,85 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# SafeWatch Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Detection
+detection:
+  model: "yolov8n.pt"            # Options: yolov8n, yolov8s, yolov8m, yolov8l
+  confidence_threshold: 0.40
+  iou_threshold: 0.50
+  device: "cuda"                 # "cuda" or "cpu"
+  input_size: 640                # YOLO input resolution
+
+# Pose Estimation
+pose:
+  model: "yolov8n-pose.pt"
+  keypoints: 17                  # COCO 17-keypoint skeleton
+  min_keypoint_confidence: 0.35
+
+# Tracking (ByteTrack)
+tracking:
+  track_threshold: 0.40
+  match_threshold: 0.80
+  track_buffer: 50               # Frames to hold lost track
+  min_box_area: 100
+
+# Emotion Analysis
+emotion:
+  enabled: true
+  model: "fer"                   # "fer" or "deepface"
+  smoothing_alpha: 0.30          # Exponential smoothing factor
+  min_face_size: 32              # Min face ROI pixels to attempt analysis
+
+# Behavioral Profiling
+profiling:
+  window_seconds: 30             # Rolling analysis window
+  feature_update_hz: 5          # Feature vector update rate
+  isolation_score_threshold: 0.7 # Zone-based isolation distance (normalized)
+
+# Anomaly Detection
+anomaly:
+  method: "isolation_forest"     # "isolation_forest" or "lstm_autoencoder"
+  contamination: 0.05            # Expected anomaly ratio (IsolationForest)
+  alert_threshold: 0.72          # Score above which an alert is raised
+  lstm_sequence_len: 60          # Seconds of history for LSTM
+  lstm_model_path: "models/lstm_autoencoder.h5"
+  baseline_path: "models/baseline_profiles.pkl"
+
+# Insight Generation
+insights:
+  min_alert_interval_sec: 30     # Debounce time per person before re-alerting
+  severity_levels:
+    low: [0.72, 0.82]
+    medium: [0.82, 0.92]
+    high: [0.92, 1.00]
+
+# Video Processing
+processing:
+  keyframe_diff_threshold: 0.015  # Frame delta MSE threshold to skip similar frames
+  max_fps: 15                      # Process at most N frames/sec
+  enable_async: true
+  output_annotated: true           # Write annotated frames to disk for review
+
+# Camera Zones (example 2-zone setup)
+zones:
+  - id: "zone_a"
+    name: "Left Section"
+    polygon: [[0, 0], [640, 0], [640, 360], [0, 360]]
+  - id: "zone_b"
+    name: "Right Section"
+    polygon: [[0, 360], [640, 360], [640, 720], [0, 720]]
+
+# Logging
+logging:
+  level: "INFO"
+  log_dir: "data/logs"
+  alert_archive: "data/alerts/alerts.jsonl"
+  max_file_size_mb: 50
+
+# API Server
+api:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins: ["*"]
+  max_upload_size_mb: 500
+  ws_heartbeat_interval: 5      # seconds

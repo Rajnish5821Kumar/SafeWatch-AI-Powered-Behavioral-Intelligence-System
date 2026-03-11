@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeWatch — AI Behavioral Intelligence Dashboard</title>
+  <meta name="description" content="Real-time AI-powered behavioral monitoring dashboard for educational institutions. Detects emotional risks, anomalies, and safety concerns through computer vision." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── HEADER ───────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="15" stroke="url(#g1)" stroke-width="2"/>
+            <circle cx="16" cy="16" r="6" fill="url(#g2)"/>
+            <circle cx="16" cy="16" r="10" stroke="url(#g1)" stroke-width="1" stroke-dasharray="3 2"/>
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6EE7F7"/>
+                <stop offset="1" stop-color="#818CF8"/>
+              </linearGradient>
+              <linearGradient id="g2" x1="10" y1="10" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6EE7F7"/>
+                <stop offset="1" stop-color="#818CF8"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <h1 class="logo-title">SafeWatch</h1>
+          <p class="logo-sub">Behavioral Intelligence System</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="live-badge" id="liveBadge">
+        <span class="pulse-dot"></span>
+        <span id="liveStatus">OFFLINE</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="header-stat">
+        <span class="stat-val" id="hdrPersons">—</span>
+        <span class="stat-label">Active Persons</span>
+      </div>
+      <div class="header-stat">
+        <span class="stat-val" id="hdrFps">—</span>
+        <span class="stat-label">FPS</span>
+      </div>
+      <div class="header-stat alert-stat">
+        <span class="stat-val" id="hdrAlerts">0</span>
+        <span class="stat-label">Alerts Today</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── MAIN GRID ─────────────────────────────────────────── -->
+  <main class="main-grid">
+
+    <!-- ── Left Column ── -->
+    <aside class="sidebar">
+
+      <!-- Upload Panel -->
+      <div class="card upload-card">
+        <div class="card-header">
+          <span class="card-icon">📹</span>
+          <span class="card-title">Video Analysis</span>
+        </div>
+        <div class="upload-area" id="uploadArea">
+          <div class="upload-icon">⬆</div>
+          <p class="upload-hint">Drop a video or click to upload</p>
+          <p class="upload-sub">MP4 · AVI · MOV · up to 500 MB</p>
+          <input type="file" id="videoFile" accept="video/*" hidden />
+        </div>
+        <button class="btn btn-primary" id="analyzeBtn" disabled>
+          <span class="btn-icon">▶</span> Run Analysis
+        </button>
+        <div class="progress-bar-wrap hidden" id="progressWrap">
+          <div class="progress-bar" id="progressBar"></div>
+          <span class="progress-label" id="progressLabel">Initializing…</span>
+        </div>
+      </div>
+
+      <!-- System Status -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-icon">⚡</span>
+          <span class="card-title">System Status</span>
+        </div>
+        <div class="status-grid">
+          <div class="status-item">
+            <span class="status-dot dot-green" id="dotDetector"></span>
+            <span class="status-name">YOLOv8 Detector</span>
+          </div>
+          <div class="status-item">
+            <span class="status-dot dot-green" id="dotTracker"></span>
+            <span class="status-name">ByteTrack MOT</span>
+          </div>
+          <div class="status-item">
+            <span class="status-dot dot-green" id="dotPose"></span>
+            <span class="status-name">Pose Estimator</span>
+          </div>
+          <div class="status-item">
+            <span class="status-dot dot-green" id="dotEmotion"></span>
+            <span class="status-name">Emotion FER</span>
+          </div>
+          <div class="status-item">
+            <span class="status-dot dot-green" id="dotAnomaly"></span>
+            <span class="status-name">Anomaly AI</span>
+          </div>
+          <div class="status-item">
+            <span class="status-dot dot-amber" id="dotWs"></span>
+            <span class="status-name">WebSocket</span>
+          </div>
+        </div>
+        <div class="latency-grid">
+          <div class="latency-item">
+            <span class="lat-label">Detection</span>
+            <span class="lat-val" id="latDetect">—</span>
+          </div>
+          <div class="latency-item">
+            <span class="lat-label">Pose</span>
+            <span class="lat-val" id="latPose">—</span>
+          </div>
+          <div class="latency-item">
+            <span class="lat-label">Anomaly</span>
+            <span class="lat-val" id="latAnomaly">—</span>
+          </div>
+          <div class="latency-item">
+            <span class="lat-label">Total</span>
+            <span class="lat-val" id="latTotal">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emotion Distribution -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-icon">🎭</span>
+          <span class="card-title">Classroom Emotions</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="emotionChart" width="220" height="220"></canvas>
+          <div class="donut-center" id="donutCenter">
+            <span class="donut-val">—</span>
+            <span class="donut-label">dominant</span>
+          </div>
+        </div>
+        <div class="emotion-legend" id="emotionLegend"></div>
+      </div>
+
+    </aside>
+
+    <!-- ── Center Column ── -->
+    <section class="center-panel">
+
+      <!-- Live Video Frame Viewer -->
+      <div class="card video-card">
+        <div class="card-header">
+          <span class="card-icon">🎥</span>
+          <span class="card-title">Live Annotated Feed</span>
+          <div class="card-pills">
+            <span class="pill pill-blue" id="pillPersons">0 Persons</span>
+            <span class="pill pill-red hidden" id="pillAlert">⚠ Alert</span>
+          </div>
+        </div>
+        <div class="video-canvas-wrap">
+          <canvas id="videoCanvas"></canvas>
+          <div class="video-placeholder" id="videoPlaceholder">
+            <div class="placeholder-icon">📡</div>
+            <p>Awaiting video input</p>
+            <span>Upload a classroom video to begin analysis</span>
+          </div>
+          <!-- Person badges overlay -->
+          <div class="tracked-overlay" id="trackedOverlay"></div>
+          <!-- Timestamp -->
+          <div class="video-timestamp" id="videoTimestamp"></div>
+        </div>
+      </div>
+
+      <!-- Engagement Timeline Chart -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-icon">📈</span>
+          <span class="card-title">Engagement & Anomaly Timeline</span>
+          <div class="card-pills">
+            <span class="pill pill-cyan">Live • 10s intervals</span>
+          </div>
+        </div>
+        <div class="timeline-chart-wrap">
+          <canvas id="timelineChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── Right Column ── -->
+    <aside class="right-panel">
+
+      <!-- Active Persons Summary -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-icon">👥</span>
+          <span class="card-title">Tracked Persons</span>
+        </div>
+        <div class="persons-list" id="personsList">
+          <div class="empty-state">No active tracks</div>
+        </div>
+      </div>
+
+      <!-- Alert Feed -->
+      <div class="card alerts-card">
+        <div class="card-header">
+          <span class="card-icon">🚨</span>
+          <span class="card-title">Alert Feed</span>
+          <button class="btn-ghost" id="clearAlertsBtn">Clear</button>
+        </div>
+        <div class="alerts-feed" id="alertsFeed">
+          <div class="empty-state">No alerts — all clear ✓</div>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────── -->
+  <footer class="footer">
+    <span>SafeWatch v1.0.0 — AI Behavioral Intelligence for Educational Institutions</span>
+    <span class="footer-sep">|</span>
+    <span>Privacy-First · Non-Invasive · Explainable AI</span>
+    <span class="footer-sep">|</span>
+    <span>API: <a href="http://localhost:8000/docs" target="_blank" id="apiDocsLink">localhost:8000/docs</a></span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
